@@ -181,22 +181,39 @@
   }
   textarea { resize: vertical; min-height: 80px; }
 
-  .toggle-group { display: flex; gap: 1rem; padding: 0.4rem 0; }
-  .toggle-group label {
+  /* ===== TOGGLE BUTTONS (Sim/Não) ===== */
+  .toggle-btn-group {
     display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.85rem;
-    text-transform: none;
-    letter-spacing: 0;
-    font-weight: 500;
-    cursor: pointer;
-    color: var(--gray-dark);
+    gap: 0.75rem;
+    padding: 0.25rem 0;
   }
-  .toggle-group input[type="radio"] {
-    width: 16px; height: 16px;
-    accent-color: var(--red);
+  .toggle-btn-group button {
+    flex: 1;
+    padding: 0.55rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--gray-mid);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     cursor: pointer;
+    transition: all 0.2s;
+  }
+  .toggle-btn-group button.selected-sim {
+    background: #166534;
+    border-color: #166534;
+    color: var(--white);
+  }
+  .toggle-btn-group button.selected-nao {
+    background: var(--red);
+    border-color: var(--red);
+    color: var(--white);
+  }
+  .toggle-btn-group button:hover:not(.selected-sim):not(.selected-nao) {
+    border-color: var(--gray-dark);
+    color: var(--black);
   }
 
   /* ===== BOTÕES ===== */
@@ -217,6 +234,7 @@
   .btn-secondary:hover { background: #333; transform: translateY(-1px); }
   .btn-outline { background: none; border: 1px solid var(--border); color: var(--gray-dark); }
   .btn-outline:hover { border-color: var(--red); color: var(--red); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   .form-actions {
     display: flex;
@@ -238,6 +256,7 @@
   }
   .alert-success { background: #F0FFF4; border: 1px solid #86EFAC; color: #166534; }
   .alert-error   { background: #FFF0F0; border: 1px solid #FECACA; color: #991B1B; }
+  .alert-warning { background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; }
 
   /* ===== DASHBOARD ===== */
   .dashboard-controls {
@@ -321,6 +340,29 @@
     display: none;
   }
 
+  /* Lembrar-me */
+  .remember-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+  .remember-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--red);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .remember-row label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--gray-mid);
+    cursor: pointer;
+  }
+
   /* ===== FOOTER ===== */
   footer {
     background: var(--white);
@@ -345,7 +387,7 @@
 </head>
 <body>
 
-<!-- ===== LOGIN OVERLAY ===== -->
+<!-- ===== LOGIN ===== -->
 <div id="loginOverlay">
   <div class="login-card">
     <div class="logo-wrap">
@@ -360,6 +402,10 @@
       <div class="form-group">
         <label for="loginPass">Senha</label>
         <input type="password" id="loginPass" placeholder="Digite sua senha" autocomplete="current-password">
+      </div>
+      <div class="remember-row">
+        <input type="checkbox" id="lembrarMe">
+        <label for="lembrarMe">Lembrar-me neste dispositivo</label>
       </div>
       <div class="login-error" id="loginError">Usuário ou senha incorretos.</div>
       <button type="button" class="btn btn-primary"
@@ -468,10 +514,11 @@
         </div>
         <div class="alert alert-success" id="msgEnvioOk">Registro salvo com sucesso.</div>
         <div class="alert alert-error"   id="msgEnvioErr"></div>
+        <div class="alert alert-warning" id="msgEnvioDup"></div>
         <div class="form-actions">
           <button type="button" class="btn btn-outline"
             onclick="document.getElementById('formEnvio').reset()">Limpar</button>
-          <button type="button" class="btn btn-primary" onclick="submitEnvio()">Registrar</button>
+          <button type="button" class="btn btn-primary" id="btnRegistrarEnvio" onclick="submitEnvio()">Registrar</button>
         </div>
       </form>
     </div>
@@ -556,6 +603,7 @@
               <option value="">Selecione</option>
               <option>Fábrica</option>
               <option>Cliente</option>
+              <option>Em processo</option>
             </select>
           </div>
           <div class="form-group">
@@ -614,10 +662,11 @@
           </div>
           <div class="form-group">
             <label>Recebeu o produto correto?</label>
-            <div class="toggle-group">
-              <label><input type="radio" name="rc_correto" value="Sim"> Sim</label>
-              <label><input type="radio" name="rc_correto" value="Não"> Não</label>
+            <div class="toggle-btn-group">
+              <button type="button" id="btnSim" onclick="selecionarCorreto('Sim')">Sim</button>
+              <button type="button" id="btnNao" onclick="selecionarCorreto('Não')">Não</button>
             </div>
+            <input type="hidden" id="rc_correto" value="">
           </div>
         </div>
         <div class="form-group full">
@@ -631,8 +680,7 @@
         <div class="alert alert-success" id="msgRecebOk">Registro salvo com sucesso.</div>
         <div class="alert alert-error"   id="msgRecebErr"></div>
         <div class="form-actions">
-          <button type="button" class="btn btn-outline"
-            onclick="document.getElementById('formRecebidos').reset()">Limpar</button>
+          <button type="button" class="btn btn-outline" onclick="limparRecebidos()">Limpar</button>
           <button type="button" class="btn btn-primary" onclick="submitRecebidos()">Registrar</button>
         </div>
       </form>
@@ -690,11 +738,11 @@ function showAlert(id, msg) {
   const el = document.getElementById(id);
   if (msg) el.textContent = msg;
   el.style.display = 'block';
-  setTimeout(() => { el.style.display = 'none'; }, 4000);
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
 function getUsuario() {
-  return sessionStorage.getItem('user') || 'desconhecido';
+  return sessionStorage.getItem('user') || localStorage.getItem('user') || 'desconhecido';
 }
 
 async function hashPassword(pwd) {
@@ -704,16 +752,40 @@ async function hashPassword(pwd) {
     .map(b => ('0' + (b & 0xFF).toString(16)).slice(-2)).join('');
 }
 
+/* ===== TOGGLE SIM/NÃO ===== */
+function selecionarCorreto(valor) {
+  document.getElementById('rc_correto').value = valor;
+  document.getElementById('btnSim').className = '';
+  document.getElementById('btnNao').className = '';
+  if (valor === 'Sim') {
+    document.getElementById('btnSim').className = 'selected-sim';
+  } else {
+    document.getElementById('btnNao').className = 'selected-nao';
+  }
+}
+
+function limparRecebidos() {
+  document.getElementById('formRecebidos').reset();
+  document.getElementById('rc_correto').value = '';
+  document.getElementById('btnSim').className = '';
+  document.getElementById('btnNao').className = '';
+}
+
 /* ===== LOGIN ===== */
 async function tentarLogin() {
-  const user = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  if (!user || !pass) {
-    document.getElementById('loginError').textContent = 'Preencha usuário e senha.';
-    document.getElementById('loginError').style.display = 'block';
+  const userRaw = document.getElementById('loginUser').value.trim();
+  const pass    = document.getElementById('loginPass').value;
+  const lembrar = document.getElementById('lembrarMe').checked;
+
+  if (!userRaw || !pass) {
+    const err = document.getElementById('loginError');
+    err.textContent = 'Preencha usuário e senha.';
+    err.style.display = 'block';
     return;
   }
 
+  // Normaliza para minúsculas — case-insensitive
+  const user = userRaw.toLowerCase();
   const hash = await hashPassword(pass);
 
   try {
@@ -723,9 +795,18 @@ async function tentarLogin() {
     const data = await resp.json();
 
     if (data.ok) {
-      sessionStorage.setItem('user', user);
+      // Salva na sessão sempre
+      sessionStorage.setItem('user', userRaw);
       sessionStorage.setItem('perfil', data.perfil || '');
-      document.getElementById('nomeUsuario').textContent = user;
+
+      // Se "Lembrar-me" marcado, salva no localStorage também
+      if (lembrar) {
+        localStorage.setItem('user', userRaw);
+        localStorage.setItem('perfil', data.perfil || '');
+        localStorage.setItem('lembrado', 'true');
+      }
+
+      document.getElementById('nomeUsuario').textContent = userRaw;
       document.getElementById('loginOverlay').classList.add('hidden');
     } else {
       const err = document.getElementById('loginError');
@@ -742,31 +823,51 @@ async function tentarLogin() {
 
 function fazerLogout() {
   sessionStorage.clear();
+  localStorage.removeItem('user');
+  localStorage.removeItem('perfil');
+  localStorage.removeItem('lembrado');
   location.reload();
 }
 
 /* ===== INIT ===== */
 window.addEventListener('DOMContentLoaded', () => {
-  // Se já estiver logado na sessão, pula o login
-  const user = sessionStorage.getItem('user');
+  // Verifica sessão atual
+  const userSessao = sessionStorage.getItem('user');
+  // Verifica lembrar-me
+  const userLembrado = localStorage.getItem('lembrado') === 'true' ? localStorage.getItem('user') : null;
+  const user = userSessao || userLembrado;
+
   if (user) {
     document.getElementById('nomeUsuario').textContent = user;
     document.getElementById('loginOverlay').classList.add('hidden');
+    // Se veio do localStorage, preenche também a sessão
+    if (!userSessao && userLembrado) {
+      sessionStorage.setItem('user', userLembrado);
+    }
+  } else {
+    // Pré-preenche usuário se estava lembrado anteriormente
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      document.getElementById('loginUser').value = savedUser;
+      document.getElementById('lembrarMe').checked = true;
+      document.getElementById('loginPass').focus();
+    }
   }
 
-  // Enter no campo senha
   document.getElementById('loginPass').addEventListener('keydown', e => {
     if (e.key === 'Enter') tentarLogin();
   });
-
-  // Enter no campo usuário move para senha
   document.getElementById('loginUser').addEventListener('keydown', e => {
     if (e.key === 'Enter') document.getElementById('loginPass').focus();
   });
 });
 
-/* ===== ENVIO ===== */
+/* ===== ENVIO — com bloqueio de duplicidade ===== */
+let envioEmAndamento = false;
+
 async function submitEnvio() {
+  if (envioEmAndamento) return;
+
   const payload = {
     action:     'addEnvio',
     usuario:    getUsuario(),
@@ -786,15 +887,25 @@ async function submitEnvio() {
     return;
   }
 
+  // Bloqueia botão para evitar duplo clique
+  envioEmAndamento = true;
+  const btn = document.getElementById('btnRegistrarEnvio');
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+
   try {
+    // Verifica duplicidade — se existir, BLOQUEIA (não pergunta)
     const dup = await fetch(`${SCRIPT_URL}?action=checkPedido&num=${encodeURIComponent(payload.numPedido)}`);
     const dupData = await dup.json();
+
     if (dupData.exists) {
-      if (!confirm('Já existe um registro com este número de pedido.\nDeseja registrar mesmo assim?')) return;
+      showAlert('msgEnvioDup', `Pedido ${payload.numPedido} já está registrado na base. Registro bloqueado.`);
+      return; // Para aqui, não registra
     }
 
     const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
     const result = await resp.json();
+
     if (result.ok) {
       showAlert('msgEnvioOk');
       document.getElementById('formEnvio').reset();
@@ -803,6 +914,13 @@ async function submitEnvio() {
     }
   } catch(e) {
     showAlert('msgEnvioErr', 'Erro de conexão com o servidor.');
+  } finally {
+    // Reabilita botão após 2s
+    setTimeout(() => {
+      envioEmAndamento = false;
+      btn.disabled = false;
+      btn.textContent = 'Registrar';
+    }, 2000);
   }
 }
 
@@ -854,7 +972,6 @@ async function submitReembolso() {
 
 /* ===== RECEBIDOS ===== */
 async function submitRecebidos() {
-  const correto = document.querySelector('input[name="rc_correto"]:checked');
   const payload = {
     action:            'addRecebidos',
     usuario:           getUsuario(),
@@ -865,7 +982,7 @@ async function submitRecebidos() {
     telefone:          document.getElementById('rc_tel').value.trim(),
     transportadora:    document.getElementById('rc_transp').value,
     motivoTroca:       document.getElementById('rc_motivo').value,
-    produtoCorreto:    correto ? correto.value : '',
+    produtoCorreto:    document.getElementById('rc_correto').value,
     produtosRecebidos: document.getElementById('rc_pecas').value.trim(),
     observacao:        document.getElementById('rc_obs').value.trim()
   };
@@ -873,7 +990,7 @@ async function submitRecebidos() {
   const obrigatorios = ['responsavel','canalVenda','numPedido','nomeCliente','telefone',
                         'transportadora','motivoTroca','produtoCorreto','produtosRecebidos'];
   if (obrigatorios.some(k => !payload[k])) {
-    showAlert('msgRecebErr', 'Preencha todos os campos obrigatórios.');
+    showAlert('msgRecebErr', 'Preencha todos os campos obrigatórios, incluindo "Recebeu o produto correto?".');
     return;
   }
 
@@ -882,7 +999,7 @@ async function submitRecebidos() {
     const result = await resp.json();
     if (result.ok) {
       showAlert('msgRecebOk');
-      document.getElementById('formRecebidos').reset();
+      limparRecebidos();
     } else {
       showAlert('msgRecebErr', 'Erro: ' + (result.error || 'desconhecido'));
     }
