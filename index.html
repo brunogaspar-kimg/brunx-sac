@@ -72,7 +72,6 @@
   .alert-error   { background: #FFF0F0; border: 1px solid #FECACA; color: #991B1B; }
   .alert-warning { background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; }
 
-  /* PENDÊNCIAS */
   .pendencias-vazio { text-align: center; padding: 3rem 2rem; color: var(--gray-mid); }
   .pendencias-vazio .icone { font-size: 3rem; margin-bottom: 1rem; display: block; }
   .pendencias-vazio h3 { font-size: 1rem; font-weight: 700; color: var(--black); margin-bottom: 0.5rem; }
@@ -93,7 +92,6 @@
   .resolver-row .form-group { flex: 1; min-width: 160px; }
   .pendencia-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
 
-  /* DASHBOARD */
   .dashboard-controls { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; margin-bottom: 1.5rem; }
   .dashboard-controls .form-group { flex: 1; min-width: 140px; }
   .dashboard-controls .btn { align-self: flex-end; }
@@ -101,7 +99,6 @@
   .chart-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem; }
   .chart-card h3 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-mid); margin-bottom: 1rem; }
 
-  /* LOGIN */
   #loginOverlay { position: fixed; inset: 0; background: var(--gray-light); display: flex; align-items: center; justify-content: center; z-index: 9999; }
   #loginOverlay.hidden { display: none; }
   .login-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 8px 32px rgba(0,0,0,0.12); padding: 2.5rem 2rem; width: 100%; max-width: 380px; }
@@ -134,12 +131,9 @@
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginOverlay">
   <div class="login-card">
-    <div class="logo-wrap">
-      <img src="LOGO_BRUNX_PNG.png" alt="BRUNX">
-    </div>
+    <div class="logo-wrap"><img src="LOGO_BRUNX_PNG.png" alt="BRUNX"></div>
     <h2>Sistema de Atendimento ao Cliente</h2>
     <form onsubmit="return false;">
       <div class="form-group">
@@ -160,35 +154,27 @@
         <span class="remember-label">Lembrar-me neste dispositivo</span>
       </label>
       <div class="login-error" id="loginError"></div>
-      <button type="button" class="btn btn-primary" style="width:100%;margin-top:0.5rem;" onclick="tentarLogin()">
-        Entrar
-      </button>
+      <button type="button" class="btn btn-primary" style="width:100%;margin-top:0.5rem;" onclick="tentarLogin()">Entrar</button>
     </form>
   </div>
 </div>
 
-<!-- HEADER -->
 <header>
   <img src="LOGO_BRUNX_PNG.png" alt="BRUNX">
   <span class="header-title">SAC — Sistema de Atendimento</span>
-  <div class="header-user">
-    Olá, <span id="nomeUsuario">—</span>
+  <div class="header-user">Olá, <span id="nomeUsuario">—</span>
     <button class="btn-logout" onclick="fazerLogout()">Sair</button>
   </div>
 </header>
 
-<!-- NAV -->
 <nav id="mainNav">
   <button class="active" onclick="showSection('envio', this)">Envio</button>
   <button onclick="showSection('reembolso', this)">Reembolso</button>
   <button onclick="showSection('recebidos', this)">Recebidos</button>
-  <button onclick="showSection('pendencias', this)">
-    Pendências <span class="nav-badge" id="navBadge"></span>
-  </button>
+  <button onclick="showSection('pendencias', this)">Pendências <span class="nav-badge" id="navBadge"></span></button>
   <button onclick="showSection('dashboard', this)">Dashboard</button>
 </nav>
 
-<!-- MAIN -->
 <main>
 
   <!-- ENVIO -->
@@ -712,9 +698,15 @@ async function confirmarResolucao(idx, linha) {
   }
 
   try {
-    const resp   = await fetch(SCRIPT_URL, {
+    const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'resolverPendencia', usuario: getUsuario(), linha, responsavel, observacao })
+      body: JSON.stringify({
+        action: 'resolverPendencia',
+        usuario: getUsuario(),
+        linha,
+        responsavel,
+        observacao
+      })
     });
     const result = await resp.json();
 
@@ -746,5 +738,285 @@ async function verificarPedidoAoSair(numPedido) {
     const data = await resp.json();
     const aviso = document.getElementById('msgEnvioDupInline');
     const btn   = document.getElementById('btnRegistrarEnvio');
-    if
+    if (data.exists) {
+      aviso.style.display = 'block';
+      btn.disabled = true;
+    } else {
+      aviso.style.display = 'none';
+      btn.disabled = false;
+    }
+  } catch(e) { /* silencioso */ }
+}
 
+/* ===== ENVIO ===== */
+let envioEmAndamento = false;
+
+function limparEnvio() {
+  document.getElementById('formEnvio').reset();
+  document.getElementById('msgEnvioDupInline').style.display = 'none';
+  const btn = document.getElementById('btnRegistrarEnvio');
+  btn.disabled = false;
+  btn.textContent = 'Registrar';
+}
+
+async function submitEnvio() {
+  if (envioEmAndamento) return;
+
+  const payload = {
+    action:     'addEnvio',
+    usuario:    getUsuario(),
+    canalVenda: document.getElementById('e_canal').value,
+    cliente:    document.getElementById('e_cliente').value.trim(),
+    telefone:   document.getElementById('e_tel').value.trim(),
+    numPedido:  document.getElementById('e_pedido').value.trim(),
+    tipoFalha:  document.getElementById('e_falha').value,
+    setorResp:  document.getElementById('e_setor').value,
+    solucao:    document.getElementById('e_solucao').value,
+    observacao: document.getElementById('e_obs').value.trim()
+  };
+
+  const obrigatorios = ['canalVenda','cliente','telefone','numPedido','tipoFalha','setorResp','solucao'];
+  if (obrigatorios.some(k => !payload[k])) {
+    showAlert('msgEnvioErr', 'Preencha todos os campos obrigatórios.');
+    return;
+  }
+
+  envioEmAndamento = true;
+  const btn = document.getElementById('btnRegistrarEnvio');
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+
+  try {
+    const dup = await fetch(
+      `${SCRIPT_URL}?action=checkPedido&num=${encodeURIComponent(payload.numPedido)}`
+    );
+    const dupData = await dup.json();
+
+    if (dupData.exists) {
+      document.getElementById('msgEnvioDupInline').style.display = 'block';
+      showAlert('msgEnvioErr', `Pedido ${payload.numPedido} já registrado. Bloqueado.`);
+      return;
+    }
+
+    btn.textContent = 'Salvando...';
+    const resp   = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const result = await resp.json();
+
+    if (result.ok) {
+      showAlert('msgEnvioOk');
+      limparEnvio();
+    } else {
+      showAlert('msgEnvioErr', 'Erro: ' + (result.error || 'desconhecido'));
+    }
+  } catch(e) {
+    showAlert('msgEnvioErr', 'Erro de conexão com o servidor.');
+  } finally {
+    setTimeout(() => {
+      envioEmAndamento = false;
+      btn.disabled = false;
+      btn.textContent = 'Registrar';
+    }, 2000);
+  }
+}
+
+/* ===== REEMBOLSO ===== */
+async function submitReembolso() {
+  const payload = {
+    action:        'addReembolso',
+    usuario:       getUsuario(),
+    cliente:       document.getElementById('r_cliente').value.trim(),
+    loja:          document.getElementById('r_loja').value,
+    tipoReembolso: document.getElementById('r_tipo').value,
+    valor:         document.getElementById('r_valor').value.trim(),
+    motivo:        document.getElementById('r_motivo').value,
+    nfVenda:       document.getElementById('r_nfVenda').value.trim(),
+    nfDevolucao:   document.getElementById('r_nfDevol').value.trim()
+  };
+
+  const obrigatorios = ['cliente','loja','tipoReembolso','valor','motivo','nfVenda','nfDevolucao'];
+  if (obrigatorios.some(k => !payload[k])) {
+    showAlert('msgReembErr', 'Preencha todos os campos obrigatórios.');
+    return;
+  }
+
+  try {
+    const nfResp = await fetch(
+      `${SCRIPT_URL}?action=checkNF&nfVenda=${encodeURIComponent(payload.nfVenda)}&nfDevol=${encodeURIComponent(payload.nfDevolucao)}`
+    );
+    const nfData = await nfResp.json();
+    if (nfData.dupVenda || nfData.dupDevol) {
+      let msg = 'Duplicidade: ';
+      if (nfData.dupVenda) msg += 'NF de Venda já registrada. ';
+      if (nfData.dupDevol) msg += 'NF de Devolução já registrada.';
+      showAlert('msgReembErr', msg.trim());
+      return;
+    }
+
+    const resp   = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const result = await resp.json();
+    if (result.ok) {
+      showAlert('msgReembOk');
+      document.getElementById('formReembolso').reset();
+    } else {
+      showAlert('msgReembErr', 'Erro: ' + (result.error || 'desconhecido'));
+    }
+  } catch(e) {
+    showAlert('msgReembErr', 'Erro de conexão com o servidor.');
+  }
+}
+
+/* ===== RECEBIDOS ===== */
+function selecionarCorreto(valor) {
+  document.getElementById('rc_correto').value = valor;
+  document.getElementById('btnSim').className = valor === 'Sim' ? 'selected-sim' : '';
+  document.getElementById('btnNao').className = valor === 'Não' ? 'selected-nao' : '';
+}
+
+function limparRecebidos() {
+  document.getElementById('formRecebidos').reset();
+  document.getElementById('rc_correto').value = '';
+  document.getElementById('btnSim').className = '';
+  document.getElementById('btnNao').className = '';
+}
+
+async function submitRecebidos() {
+  const payload = {
+    action:            'addRecebidos',
+    usuario:           getUsuario(),
+    responsavel:       document.getElementById('rc_resp').value,
+    canalVenda:        document.getElementById('rc_canal').value,
+    numPedido:         document.getElementById('rc_pedido').value.trim(),
+    nomeCliente:       document.getElementById('rc_nome').value.trim(),
+    telefone:          document.getElementById('rc_tel').value.trim(),
+    transportadora:    document.getElementById('rc_transp').value,
+    motivoTroca:       document.getElementById('rc_motivo').value,
+    produtoCorreto:    document.getElementById('rc_correto').value,
+    produtosRecebidos: document.getElementById('rc_pecas').value.trim(),
+    observacao:        document.getElementById('rc_obs').value.trim()
+  };
+
+  const obrigatorios = ['responsavel','canalVenda','numPedido','nomeCliente','telefone',
+                        'transportadora','motivoTroca','produtoCorreto','produtosRecebidos'];
+  if (obrigatorios.some(k => !payload[k])) {
+    showAlert('msgRecebErr', 'Preencha todos os campos obrigatórios.');
+    return;
+  }
+
+  try {
+    const resp   = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const result = await resp.json();
+
+    if (result.ok) {
+      if (payload.responsavel === 'Em processo') {
+        showAlert('msgRecebPendencia');
+        atualizarBadgePendencias();
+      } else {
+        showAlert('msgRecebOk');
+      }
+      limparRecebidos();
+    } else {
+      showAlert('msgRecebErr', 'Erro: ' + (result.error || 'desconhecido'));
+    }
+  } catch(e) {
+    showAlert('msgRecebErr', 'Erro de conexão com o servidor.');
+  }
+}
+
+/* ===== DASHBOARD ===== */
+google.charts.load('current', { packages: ['corechart'] });
+
+async function carregarDados() {
+  const base  = document.getElementById('filterBase').value;
+  const start = document.getElementById('dateStart').value;
+  const end   = document.getElementById('dateEnd').value;
+  try {
+    const resp = await fetch(
+      `${SCRIPT_URL}?action=getDashboard&base=${base}&start=${start}&end=${end}`
+    );
+    const data = await resp.json();
+    desenharGraficos(data);
+  } catch(e) {
+    document.getElementById('chartsContainer').innerHTML =
+      '<p style="color:var(--red);font-size:.85rem;padding:1rem;">Erro ao carregar dados.</p>';
+  }
+}
+
+function criarChartCard(titulo) {
+  const div = document.createElement('div');
+  div.className = 'chart-card';
+  div.innerHTML = `<h3>${titulo}</h3><div class="chart-inner" style="height:220px;"></div>`;
+  return div;
+}
+
+function chartOptions() {
+  return {
+    legend: { position: 'bottom', textStyle: { fontSize: 11 } },
+    chartArea: { width: '90%', height: '75%' },
+    colors: ['#AA0000','#111111','#666666','#DDDDDD','#880000'],
+    fontName: 'Segoe UI'
+  };
+}
+
+function desenharGraficos(data) {
+  const container = document.getElementById('chartsContainer');
+  container.innerHTML = '';
+
+  if (data.envio && data.envio.length) {
+    const div = criarChartCard('Envios por Canal');
+    container.appendChild(div);
+    const tabela = new google.visualization.DataTable();
+    tabela.addColumn('string', 'Canal');
+    tabela.addColumn('number', 'Qtd');
+    const cnt = {};
+    data.envio.forEach(r => { const c = r['CANAL_VENDA'] || '—'; cnt[c] = (cnt[c]||0)+1; });
+    Object.entries(cnt).forEach(([k,v]) => tabela.addRow([k,v]));
+    new google.visualization.PieChart(div.querySelector('.chart-inner')).draw(tabela, chartOptions());
+  }
+
+  if (data.envio && data.envio.length) {
+    const div = criarChartCard('Envios por Tipo de Falha');
+    container.appendChild(div);
+    const tabela = new google.visualization.DataTable();
+    tabela.addColumn('string', 'Falha');
+    tabela.addColumn('number', 'Qtd');
+    const cnt = {};
+    data.envio.forEach(r => { const c = r['TIPO_FALHA'] || '—'; cnt[c] = (cnt[c]||0)+1; });
+    Object.entries(cnt).forEach(([k,v]) => tabela.addRow([k,v]));
+    new google.visualization.BarChart(div.querySelector('.chart-inner')).draw(tabela, chartOptions());
+  }
+
+  if (data.reembolso && data.reembolso.length) {
+    const div = criarChartCard('Reembolsos por Motivo');
+    container.appendChild(div);
+    const tabela = new google.visualization.DataTable();
+    tabela.addColumn('string', 'Motivo');
+    tabela.addColumn('number', 'Qtd');
+    const cnt = {};
+    data.reembolso.forEach(r => { const c = r['MOTIVO'] || '—'; cnt[c] = (cnt[c]||0)+1; });
+    Object.entries(cnt).forEach(([k,v]) => tabela.addRow([k,v]));
+    new google.visualization.BarChart(div.querySelector('.chart-inner')).draw(tabela, chartOptions());
+  }
+
+  if (data.recebidos && data.recebidos.length) {
+    const div = criarChartCard('Recebidos por Transportadora');
+    container.appendChild(div);
+    const tabela = new google.visualization.DataTable();
+    tabela.addColumn('string', 'Transportadora');
+    tabela.addColumn('number', 'Qtd');
+    const cnt = {};
+    data.recebidos.forEach(r => { const c = r['TRANSPORTADORA'] || '—'; cnt[c] = (cnt[c]||0)+1; });
+    Object.entries(cnt).forEach(([k,v]) => tabela.addRow([k,v]));
+    new google.visualization.PieChart(div.querySelector('.chart-inner')).draw(tabela, chartOptions());
+  }
+
+  if (!container.children.length) {
+    container.innerHTML = '<p style="color:var(--gray-mid);font-size:.85rem;padding:1rem;grid-column:1/-1;">Nenhum dado encontrado para o período selecionado.</p>';
+  }
+}
+
+function exportarPDF() {
+  window.print();
+}
+</script>
+</body>
+</html>
