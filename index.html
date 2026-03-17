@@ -32,6 +32,7 @@
     flex-direction: column;
   }
 
+  /* ===== HEADER ===== */
   header {
     background: var(--white);
     border-bottom: 3px solid var(--red);
@@ -71,6 +72,7 @@
   }
   .btn-logout:hover { border-color: var(--red); color: var(--red); }
 
+  /* ===== NAV ===== */
   nav {
     background: var(--white);
     border-bottom: 1px solid var(--border);
@@ -95,20 +97,41 @@
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
+    position: relative;
   }
   nav button:hover { color: var(--black); border-bottom-color: var(--border); }
   nav button.active { color: var(--red); border-bottom-color: var(--red); }
 
+  /* Badge de pendências no nav */
+  .nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--red);
+    color: var(--white);
+    font-size: 0.65rem;
+    font-weight: 700;
+    border-radius: 999px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+    display: none; /* aparece via JS quando há pendências */
+  }
+
+  /* ===== MAIN ===== */
   main {
     flex: 1;
     padding: 2rem;
-    max-width: 860px;
+    max-width: 900px;
     width: 100%;
     margin: 0 auto;
   }
   .section { display: none; }
   .section.active { display: block; }
 
+  /* ===== CARD ===== */
   .card {
     background: var(--white);
     border: 1px solid var(--border);
@@ -139,6 +162,7 @@
     border-radius: 2px;
   }
 
+  /* ===== FORMS ===== */
   form { display: grid; gap: 1.2rem; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
   .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
@@ -184,6 +208,7 @@
   }
   textarea { resize: vertical; min-height: 80px; }
 
+  /* ===== TOGGLE SIM/NÃO ===== */
   .toggle-btn-group { display: flex; gap: 0.75rem; padding: 0.25rem 0; }
   .toggle-btn-group button {
     flex: 1;
@@ -209,6 +234,7 @@
     border-color: var(--gray-dark); color: var(--black);
   }
 
+  /* ===== BOTÕES ===== */
   .btn {
     padding: 0.65rem 1.5rem;
     border: none;
@@ -226,6 +252,8 @@
   .btn-secondary:hover { background: #333; transform: translateY(-1px); }
   .btn-outline { background: none; border: 1px solid var(--border); color: var(--gray-dark); }
   .btn-outline:hover { border-color: var(--red); color: var(--red); }
+  .btn-success { background: #166534; color: var(--white); }
+  .btn-success:hover { background: #14532d; transform: translateY(-1px); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
   .form-actions {
@@ -237,6 +265,7 @@
     border-top: 1px solid var(--border);
   }
 
+  /* ===== ALERTAS ===== */
   .alert {
     padding: 0.7rem 1rem;
     border-radius: var(--radius);
@@ -249,6 +278,120 @@
   .alert-error   { background: #FFF0F0; border: 1px solid #FECACA; color: #991B1B; }
   .alert-warning { background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; }
 
+  /* ===== PENDÊNCIAS ===== */
+  .pendencias-vazio {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--gray-mid);
+  }
+  .pendencias-vazio .icone {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .pendencias-vazio h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 0.5rem;
+  }
+  .pendencias-vazio p {
+    font-size: 0.85rem;
+  }
+
+  .pendencia-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-left: 4px solid #F59E0B;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s;
+  }
+  .pendencia-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+
+  .pendencia-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .pendencia-header h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--black);
+  }
+  .pendencia-badge {
+    background: #FFFBEB;
+    border: 1px solid #FCD34D;
+    color: #92400E;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+  }
+
+  .pendencia-infos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .pendencia-info-item { display: flex; flex-direction: column; gap: 0.2rem; }
+  .pendencia-info-item span:first-child {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+  }
+  .pendencia-info-item span:last-child {
+    font-size: 0.85rem;
+    color: var(--black);
+    font-weight: 500;
+  }
+
+  .pendencia-resolver {
+    background: var(--gray-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    display: none;
+    margin-top: 1rem;
+  }
+  .pendencia-resolver.aberto { display: block; }
+  .pendencia-resolver h4 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gray-dark);
+    margin-bottom: 0.75rem;
+  }
+  .resolver-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .resolver-row .form-group { flex: 1; min-width: 160px; }
+  .resolver-row .btn { flex-shrink: 0; }
+
+  .pendencia-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ===== DASHBOARD ===== */
   .dashboard-controls {
     display: flex; flex-wrap: wrap; gap: 0.75rem;
     align-items: flex-end; margin-bottom: 1.5rem;
@@ -269,6 +412,7 @@
     color: var(--gray-mid); margin-bottom: 1rem;
   }
 
+  /* ===== LOGIN ===== */
   #loginOverlay {
     position: fixed; inset: 0;
     background: var(--gray-light);
@@ -302,6 +446,7 @@
     font-size: 0.82rem; font-weight: 600; text-align: center; display: none;
   }
 
+  /* ===== LEMBRAR-ME VISUAL ===== */
   .remember-row {
     display: flex; align-items: center; gap: 0.6rem;
     margin-top: 0.25rem; cursor: pointer; user-select: none;
@@ -321,6 +466,7 @@
   .remember-row.checked .checkbox-custom svg { opacity: 1; }
   .remember-label { font-size: 0.8rem; font-weight: 500; color: var(--gray-mid); }
 
+  /* ===== FOOTER ===== */
   footer {
     background: var(--white); border-top: 1px solid var(--border);
     padding: 0.75rem 2rem; text-align: center;
@@ -328,10 +474,12 @@
     letter-spacing: 0.05em; flex-shrink: 0;
   }
 
+  /* ===== RESPONSIVO ===== */
   @media (max-width: 640px) {
     main { padding: 1rem; }
     .form-row { grid-template-columns: 1fr; }
     .charts-grid { grid-template-columns: 1fr; }
+    .pendencia-infos { grid-template-columns: 1fr 1fr; }
     nav button { padding: 0.8rem 1rem; font-size: 0.75rem; }
     header { padding: 0.75rem 1rem; }
     .card { padding: 1.25rem; }
@@ -341,7 +489,7 @@
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ===== LOGIN ===== -->
 <div id="loginOverlay">
   <div class="login-card">
     <div class="logo-wrap">
@@ -376,7 +524,7 @@
   </div>
 </div>
 
-<!-- HEADER -->
+<!-- ===== HEADER ===== -->
 <header>
   <img src="LOGO_BRUNX_PNG.png" alt="BRUNX">
   <span class="header-title">SAC — Sistema de Atendimento</span>
@@ -386,15 +534,18 @@
   </div>
 </header>
 
-<!-- NAV -->
+<!-- ===== NAV ===== -->
 <nav id="mainNav">
   <button class="active" onclick="showSection('envio', this)">Envio</button>
   <button onclick="showSection('reembolso', this)">Reembolso</button>
   <button onclick="showSection('recebidos', this)">Recebidos</button>
+  <button onclick="showSection('pendencias', this)">
+    Pendências <span class="nav-badge" id="navBadge"></span>
+  </button>
   <button onclick="showSection('dashboard', this)">Dashboard</button>
 </nav>
 
-<!-- MAIN -->
+<!-- ===== MAIN ===== -->
 <main>
 
   <!-- ENVIO -->
@@ -639,6 +790,9 @@
           <label>Observação <span class="opcional">(opcional)</span></label>
           <textarea id="rc_obs" placeholder="Informações adicionais"></textarea>
         </div>
+        <div class="alert alert-warning" id="msgRecebPendencia">
+          ℹ️ Responsável em processo — registro enviado para Pendências.
+        </div>
         <div class="alert alert-success" id="msgRecebOk">✔ Registro salvo com sucesso.</div>
         <div class="alert alert-error"   id="msgRecebErr"></div>
         <div class="form-actions">
@@ -646,6 +800,14 @@
           <button type="button" class="btn btn-primary" onclick="submitRecebidos()">Registrar</button>
         </div>
       </form>
+    </div>
+  </section>
+
+  <!-- PENDÊNCIAS -->
+  <section id="pendencias" class="section">
+    <div class="card">
+      <div class="card-title">Pendências em Aberto</div>
+      <div id="pendenciasContainer"></div>
     </div>
   </section>
 
@@ -692,6 +854,7 @@ function showSection(id, btn) {
   document.querySelectorAll('#mainNav button').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if (btn) btn.classList.add('active');
+  if (id === 'pendencias') carregarPendencias();
 }
 
 /* ===== UTILITÁRIOS ===== */
@@ -704,6 +867,13 @@ function showAlert(id, msg) {
 
 function getUsuario() {
   return sessionStorage.getItem('user') || localStorage.getItem('user') || 'desconhecido';
+}
+
+function formatarData(val) {
+  if (!val) return '—';
+  const d = new Date(val);
+  if (isNaN(d)) return val;
+  return d.toLocaleDateString('pt-BR');
 }
 
 async function hashPassword(pwd) {
@@ -746,7 +916,6 @@ async function tentarLogin() {
     if (data.ok) {
       sessionStorage.setItem('user', userRaw);
       sessionStorage.setItem('perfil', data.perfil || '');
-
       if (lembrar) {
         localStorage.setItem('user', userRaw);
         localStorage.setItem('perfil', data.perfil || '');
@@ -756,9 +925,9 @@ async function tentarLogin() {
         localStorage.removeItem('perfil');
         localStorage.removeItem('lembrado');
       }
-
       document.getElementById('nomeUsuario').textContent = userRaw;
       document.getElementById('loginOverlay').classList.add('hidden');
+      atualizarBadgePendencias();
     } else {
       errEl.textContent = 'Usuário ou senha incorretos.';
       errEl.style.display = 'block';
@@ -780,15 +949,16 @@ function fazerLogout() {
 
 /* ===== INIT ===== */
 window.addEventListener('DOMContentLoaded', () => {
-  const userSessao  = sessionStorage.getItem('user');
-  const lembrado    = localStorage.getItem('lembrado') === 'true';
-  const userSalvo   = localStorage.getItem('user');
-  const userAtivo   = userSessao || (lembrado ? userSalvo : null);
+  const userSessao = sessionStorage.getItem('user');
+  const lembrado   = localStorage.getItem('lembrado') === 'true';
+  const userSalvo  = localStorage.getItem('user');
+  const userAtivo  = userSessao || (lembrado ? userSalvo : null);
 
   if (userAtivo) {
     document.getElementById('nomeUsuario').textContent = userAtivo;
     document.getElementById('loginOverlay').classList.add('hidden');
     if (!userSessao) sessionStorage.setItem('user', userAtivo);
+    atualizarBadgePendencias();
   } else if (userSalvo) {
     document.getElementById('loginUser').value = userSalvo;
     document.getElementById('lembrarMe').checked = true;
@@ -804,14 +974,195 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/* ===== VERIFICAÇÃO AO SAIR DO CAMPO PEDIDO ===== */
+/* ===== BADGE DE PENDÊNCIAS ===== */
+async function atualizarBadgePendencias() {
+  try {
+    const resp = await fetch(`${SCRIPT_URL}?action=getPendencias`);
+    const data = await resp.json();
+    const badge = document.getElementById('navBadge');
+    const total = data.pendencias ? data.pendencias.length : 0;
+    if (total > 0) {
+      badge.textContent = total;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(e) { /* silencioso */ }
+}
+
+/* ===== PENDÊNCIAS — CARREGAR ===== */
+async function carregarPendencias() {
+  const container = document.getElementById('pendenciasContainer');
+  container.innerHTML = '<p style="color:var(--gray-mid);font-size:.85rem;padding:1rem;">Carregando...</p>';
+
+  try {
+    const resp = await fetch(`${SCRIPT_URL}?action=getPendencias`);
+    const data = await resp.json();
+    renderizarPendencias(data.pendencias || []);
+  } catch(e) {
+    container.innerHTML =
+      '<p style="color:var(--red);font-size:.85rem;padding:1rem;">Erro ao carregar pendências.</p>';
+  }
+}
+
+function renderizarPendencias(lista) {
+  const container = document.getElementById('pendenciasContainer');
+  const badge     = document.getElementById('navBadge');
+
+  if (!lista.length) {
+    badge.style.display = 'none';
+    container.innerHTML = `
+      <div class="pendencias-vazio">
+        <span class="icone">✅</span>
+        <h3>Nenhuma pendência em aberto</h3>
+        <p>Todos os registros com frete definido já foram processados.</p>
+      </div>`;
+    return;
+  }
+
+  badge.textContent = lista.length;
+  badge.style.display = 'inline-flex';
+
+  container.innerHTML = lista.map((p, idx) => `
+    <div class="pendencia-card" id="pcard-${idx}">
+      <div class="pendencia-header">
+        <h3>Pedido ${p.NUM_PEDIDO || '—'} — ${p.NOME_CLIENTE || '—'}</h3>
+        <span class="pendencia-badge">Em Processo</span>
+      </div>
+      <div class="pendencia-infos">
+        <div class="pendencia-info-item">
+          <span>Data Recebimento</span>
+          <span>${formatarData(p.DATA)}</span>
+        </div>
+        <div class="pendencia-info-item">
+          <span>Canal</span>
+          <span>${p.CANAL_VENDA || '—'}</span>
+        </div>
+        <div class="pendencia-info-item">
+          <span>Telefone</span>
+          <span>${p.TELEFONE || '—'}</span>
+        </div>
+        <div class="pendencia-info-item">
+          <span>Transportadora</span>
+          <span>${p.TRANSPORTADORA || '—'}</span>
+        </div>
+        <div class="pendencia-info-item">
+          <span>Motivo da Troca</span>
+          <span>${p.MOTIVO_TROCA || '—'}</span>
+        </div>
+        <div class="pendencia-info-item">
+          <span>Produto Correto?</span>
+          <span>${p.PRODUTO_CORRETO || '—'}</span>
+        </div>
+        <div class="pendencia-info-item">
+          <span>Peças Recebidas</span>
+          <span>${p.PRODUTOS_RECEBIDOS || '—'}</span>
+        </div>
+        <div class="pendencia-info-item">
+          <span>Registrado por</span>
+          <span>${p.USUARIO || '—'}</span>
+        </div>
+        ${p.OBSERVACAO ? `
+        <div class="pendencia-info-item">
+          <span>Observação</span>
+          <span>${p.OBSERVACAO}</span>
+        </div>` : ''}
+      </div>
+
+      <!-- Painel de resolução -->
+      <div class="pendencia-resolver" id="resolver-${idx}">
+        <h4>Definir responsável pelo frete</h4>
+        <div class="resolver-row">
+          <div class="form-group">
+            <label>Responsável pelo Frete</label>
+            <select id="resp-${idx}">
+              <option value="">Selecione</option>
+              <option>Fábrica</option>
+              <option>Cliente</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Observação <span class="opcional">(opcional)</span></label>
+            <input type="text" id="obs-${idx}" placeholder="Complemento opcional">
+          </div>
+          <button class="btn btn-success"
+            onclick="confirmarResolucao(${idx}, ${p._linha})">
+            Confirmar
+          </button>
+        </div>
+        <div class="alert alert-error" id="erroResolver-${idx}"></div>
+      </div>
+
+      <div class="pendencia-actions">
+        <button class="btn btn-outline"
+          onclick="toggleResolver(${idx})">
+          Resolver Pendência
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleResolver(idx) {
+  const painel = document.getElementById(`resolver-${idx}`);
+  painel.classList.toggle('aberto');
+}
+
+async function confirmarResolucao(idx, linha) {
+  const responsavel = document.getElementById(`resp-${idx}`).value;
+  const observacao  = document.getElementById(`obs-${idx}`).value.trim();
+  const errEl       = document.getElementById(`erroResolver-${idx}`);
+
+  if (!responsavel) {
+    errEl.textContent = 'Selecione o responsável pelo frete antes de confirmar.';
+    errEl.style.display = 'block';
+    setTimeout(() => { errEl.style.display = 'none'; }, 4000);
+    return;
+  }
+
+  const payload = {
+    action:      'resolverPendencia',
+    usuario:     getUsuario(),
+    linha:       linha,
+    responsavel: responsavel,
+    observacao:  observacao
+  };
+
+  try {
+    const resp   = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const result = await resp.json();
+
+    if (result.ok) {
+      // Remove o card visualmente
+      const card = document.getElementById(`pcard-${idx}`);
+      card.style.transition = 'opacity 0.4s';
+      card.style.opacity = '0';
+      setTimeout(() => {
+        card.remove();
+        // Verifica se ainda há cards
+        const restantes = document.querySelectorAll('.pendencia-card');
+        if (!restantes.length) {
+          renderizarPendencias([]);
+        }
+        atualizarBadgePendencias();
+      }, 400);
+    } else {
+      errEl.textContent = 'Erro ao resolver: ' + (result.error || 'desconhecido');
+      errEl.style.display = 'block';
+      setTimeout(() => { errEl.style.display = 'none'; }, 5000);
+    }
+  } catch(e) {
+    errEl.textContent = 'Erro de conexão com o servidor.';
+    errEl.style.display = 'block';
+  }
+}
+
+/* ===== VERIFICAÇÃO PEDIDO AO SAIR DO CAMPO ===== */
 async function verificarPedidoAoSair(numPedido) {
   const num = String(numPedido).trim();
   if (!num) return;
   try {
-    const resp = await fetch(
-      `${SCRIPT_URL}?action=checkPedido&num=${encodeURIComponent(num)}`
-    );
+    const resp = await fetch(`${SCRIPT_URL}?action=checkPedido&num=${encodeURIComponent(num)}`);
     const data = await resp.json();
     const aviso = document.getElementById('msgEnvioDupInline');
     const btn   = document.getElementById('btnRegistrarEnvio');
@@ -822,7 +1173,7 @@ async function verificarPedidoAoSair(numPedido) {
       aviso.style.display = 'none';
       btn.disabled = false;
     }
-  } catch(e) { /* silencioso — submit ainda valida */ }
+  } catch(e) { /* silencioso */ }
 }
 
 /* ===== ENVIO ===== */
@@ -975,15 +1326,22 @@ async function submitRecebidos() {
   const obrigatorios = ['responsavel','canalVenda','numPedido','nomeCliente','telefone',
                         'transportadora','motivoTroca','produtoCorreto','produtosRecebidos'];
   if (obrigatorios.some(k => !payload[k])) {
-    showAlert('msgRecebErr', 'Preencha todos os campos obrigatórios, incluindo "Recebeu o produto correto?".');
+    showAlert('msgRecebErr', 'Preencha todos os campos obrigatórios.');
     return;
   }
 
   try {
     const resp   = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
     const result = await resp.json();
+
     if (result.ok) {
-      showAlert('msgRecebOk');
+      // Se for "Em processo", mostra alerta diferente
+      if (payload.responsavel === 'Em processo') {
+        showAlert('msgRecebPendencia');
+        atualizarBadgePendencias();
+      } else {
+        showAlert('msgRecebOk');
+      }
       limparRecebidos();
     } else {
       showAlert('msgRecebErr', 'Erro: ' + (result.error || 'desconhecido'));
@@ -1042,57 +1400,3 @@ function desenharGraficos(data) {
       .draw(tabela, chartOptions());
   }
 
-  if (data.recebidos && data.recebidos.length) {
-    const div = criarChartCard('Recebidos por Motivo de Troca');
-    container.appendChild(div);
-    const tabela = new google.visualization.DataTable();
-    tabela.addColumn('string', 'Motivo');
-    tabela.addColumn('number', 'Qtd');
-    const cnt = {};
-    data.recebidos.forEach(r => { const c = r['MOTIVO_TROCA'] || '—'; cnt[c] = (cnt[c] || 0) + 1; });
-    Object.entries(cnt).forEach(([k, v]) => tabela.addRow([k, v]));
-    new google.visualization.BarChart(div.querySelector('.chart-inner'))
-      .draw(tabela, chartOptions());
-  }
-}
-
-function criarChartCard(titulo) {
-  const div = document.createElement('div');
-  div.className = 'chart-card';
-  div.innerHTML = `<h3>${titulo}</h3><div class="chart-inner" style="height:260px;"></div>`;
-  return div;
-}
-
-function chartOptions() {
-  return {
-    backgroundColor: 'transparent',
-    legend: { textStyle: { color: '#333', fontSize: 12 } },
-    colors: ['#AA0000', '#111111', '#888888', '#CCCCCC'],
-    chartArea: { width: '85%', height: '75%' }
-  };
-}
-
-/* ===== EXPORTAR PDF ===== */
-function exportarPDF() {
-  const s1 = document.createElement('script');
-  s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-  s1.onload = () => {
-    const s2 = document.createElement('script');
-    s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-    s2.onload = async () => {
-      const { jsPDF } = window.jspdf;
-      const canvas = await html2canvas(document.getElementById('chartsContainer'));
-      const img = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const w = pdf.internal.pageSize.getWidth();
-      const h = (canvas.height * w) / canvas.width;
-      pdf.addImage(img, 'PNG', 0, 0, w, h);
-      pdf.save('dashboard-brunx.pdf');
-    };
-    document.body.appendChild(s2);
-  };
-  document.body.appendChild(s1);
-}
-</script>
-</body>
-</html>
